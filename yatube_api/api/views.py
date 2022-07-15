@@ -14,12 +14,6 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def perform_update(self, serializer):
-        super(PostViewSet, self).perform_update(serializer)
-
-    def perform_destroy(self, serializer):
-        super(PostViewSet, self).perform_destroy(serializer)
-
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
@@ -32,8 +26,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
-        new_queryset = Comment.objects.filter(post=post_id)
-        return new_queryset
+        return Comment.objects.select_related('comments').get(pk=post_id)
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
