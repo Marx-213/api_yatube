@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from posts.models import Comment, Group, Post
+from posts.models import Group, Post
 from rest_framework import permissions, viewsets
 
 from .permissions import IsAuthorOrReadOnly
@@ -25,8 +25,8 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsAuthorOrReadOnly]
 
     def get_queryset(self):
-        post_id = self.kwargs.get('post_id')
-        return Comment.objects.select_related('comments').get(pk=post_id)
+        post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
+        return post.comments.select_related('author')
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
